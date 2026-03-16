@@ -12,6 +12,10 @@
     {
       "action": "app.quit",
       "accel": "<Primary>q"
+    },
+    {
+      "action": "app.quit",
+      "accel": "<Super>q"
     }
   ]
 }
