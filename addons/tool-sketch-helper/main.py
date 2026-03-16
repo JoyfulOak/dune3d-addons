@@ -3,6 +3,7 @@ import json
 import os
 
 command = os.environ.get("DUNE3D_ADDON_COMMAND", "")
+
 response = {
     "title": "Tool Sketch Helper",
     "detail": "Pick a command.",

@@ -35,6 +35,18 @@ Repo addons are not automatically active just because they exist here. They must
 
 That means script addons should expose useful named commands instead of relying on a fallback run control.
 
+## Current Addons manager behavior
+
+The current Dune 3D Addons manager behaves like this:
+
+- the Addons window is filtered by `UI`, `Tools`, and `Models` tabs
+- repo addons show `Install` when they are not installed yet
+- installed addons show `Update` only when a newer repo version is available
+- installed addons with declared `commands` show one button per command
+- standalone script addons do not get a generic `Run` button in the installed-addon list
+
+That means addon authors should not rely on a fallback `Run` button being present for script entrypoints with no commands.
+
 ## Repo structure
 
 Example:
@@ -47,6 +59,9 @@ addons/
   mac-quit-cmd-q/
     addon.json
   tool-sketch-helper/
+    addon.json
+    main.py
+  model-workflow-notes/
     addon.json
     main.py
   model-demo-block/
@@ -79,6 +94,10 @@ Example:
     {
       "id": "dev.justin.model-demo-block",
       "folder": "model-demo-block"
+    },
+    {
+      "id": "dev.justin.model-workflow-notes",
+      "folder": "model-workflow-notes"
     }
   ]
 }
@@ -109,7 +128,7 @@ Common fields:
 - `window_controls`: declarative titlebar behavior
 - `app_shortcuts`: declarative app accelerators like `Cmd+Q`
 
-Current supported categories:
+Current supported categories are:
 
 - `UI`
 - `Tools`
@@ -346,6 +365,32 @@ Example response:
 - Use script actions when you need runtime behavior.
 - Keep script output small and deterministic.
 - Treat the addon API as a supported surface, not as direct access to internal dune3d C++ objects.
+- Use clear names and descriptions because they appear in the Addons window.
+- Add fallback accelerators for shortcuts on macOS.
+
+## Versioning
+
+Recommendations:
+
+- Start with `0.1.0` for a first test addon.
+- Bump patch version for small fixes.
+- Bump minor version when adding new commands or capabilities.
+- Keep the same `id` across versions of the same addon.
+
+Dune 3D compares installed versions against repo versions to decide whether an update is available.
+
+## Testing workflow
+
+Recommended workflow:
+
+1. Edit files in this repo.
+2. Open Dune 3D.
+3. Open the `Addons` window.
+4. Let the repo auto-sync.
+5. Click `Install` for a new addon, or `Update` for an existing one.
+6. Enable it.
+7. Test the behavior.
+8. If needed, update the version and repeat.
 
 ## Current example addons
 
@@ -353,3 +398,6 @@ Example response:
 - `mac-quit-cmd-q`
 - `tool-sketch-helper`
 - `model-demo-block`
+- `model-workflow-notes`
+
+These are useful references when creating new addons.

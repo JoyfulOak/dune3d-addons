@@ -1,8 +1,24 @@
 {
   "addons": [
-    {"id": "dev.justin.native-mac-window-buttons", "folder": "native-mac-window-buttons"},
-    {"id": "dev.justin.mac-quit-cmd-q", "folder": "mac-quit-cmd-q"},
-    {"id": "dev.justin.tool-sketch-helper", "folder": "tool-sketch-helper"},
-    {"id": "dev.justin.model-demo-block", "folder": "model-demo-block"}
+    {
+      "id": "dev.justin.native-mac-window-buttons",
+      "folder": "native-mac-window-buttons"
+    },
+    {
+      "id": "dev.justin.mac-quit-cmd-q",
+      "folder": "mac-quit-cmd-q"
+    },
+    {
+      "id": "dev.justin.tool-sketch-helper",
+      "folder": "tool-sketch-helper"
+    },
+    {
+      "id": "dev.justin.model-demo-block",
+      "folder": "model-demo-block"
+    },
+    {
+      "id": "dev.justin.model-workflow-notes",
+      "folder": "model-workflow-notes"
+    }
   ]
 }

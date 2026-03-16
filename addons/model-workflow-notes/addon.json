@@ -1,0 +1,24 @@
+{
+  "id": "dev.justin.model-workflow-notes",
+  "category": "Models",
+  "api_version": 1,
+  "name": "Model Workflow Notes",
+  "version": "0.1.0",
+  "author": "Justin",
+  "description": "Example models addon with solid-model workflow reminders.",
+  "entrypoint": "main.py",
+  "commands": [
+    {
+      "id": "show-extrude-checklist",
+      "label": "Extrude Checklist",
+      "description": "Shows a quick extrude workflow checklist.",
+      "menu_label": "Extrude Checklist"
+    },
+    {
+      "id": "show-export-checklist",
+      "label": "Export Checklist",
+      "description": "Shows a quick model export checklist.",
+      "menu_label": "Export Checklist"
+    }
+  ]
+}
