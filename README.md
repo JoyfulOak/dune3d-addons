@@ -25,6 +25,17 @@ The normal user flow is:
 
 Do not assume addon folders in this repo are automatically active in the app. They must still be installed from the Addons manager.
 
+## Current Addons manager behavior
+
+The current Dune 3D Addons manager behaves like this:
+
+- repo addons show `Install` when they are not installed yet
+- installed addons show `Update` only when a newer repo version is available
+- installed addons with declared `commands` show one button per command
+- standalone script addons do not get a generic `Run` button in the installed-addon list
+
+That means addon authors should not rely on a fallback `Run` button being present for script entrypoints with no commands.
+
 ## Repo structure
 
 Example:
