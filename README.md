@@ -29,6 +29,7 @@ Do not assume addon folders in this repo are automatically active in the app. Th
 
 The current Dune 3D Addons manager behaves like this:
 
+- the Addons window is filtered by `UI`, `Tools`, and `Models` tabs
 - repo addons show `Install` when they are not installed yet
 - installed addons show `Update` only when a newer repo version is available
 - installed addons with declared `commands` show one button per command
@@ -47,7 +48,10 @@ addons/
     addon.json
   mac-quit-cmd-q/
     addon.json
-  ui-control-center/
+  tool-sketch-helper/
+    addon.json
+    main.py
+  model-workflow-notes/
     addon.json
     main.py
 ```
@@ -70,8 +74,12 @@ Example:
       "folder": "mac-quit-cmd-q"
     },
     {
-      "id": "dev.justin.ui-control-center",
-      "folder": "ui-control-center"
+      "id": "dev.justin.tool-sketch-helper",
+      "folder": "tool-sketch-helper"
+    },
+    {
+      "id": "dev.justin.model-workflow-notes",
+      "folder": "model-workflow-notes"
     }
   ]
 }
@@ -92,6 +100,7 @@ Common fields:
 
 - `id`: globally unique addon id
 - `name`: user-visible name
+- `category`: addon tab/category shown in the Addons manager
 - `version`: addon version string
 - `author`: addon author
 - `description`: short summary shown in the Addons window
@@ -101,12 +110,19 @@ Common fields:
 - `window_controls`: declarative window-titlebar behavior
 - `app_shortcuts`: declarative app accelerators like `Cmd+Q`
 
+Current supported categories are:
+
+- `UI`
+- `Tools`
+- `Models`
+
 ### Minimal declarative addon
 
 ```json
 {
   "id": "dev.example.sample-addon",
   "name": "Sample Addon",
+  "category": "UI",
   "version": "0.1.0",
   "author": "Example Author",
   "description": "A minimal addon manifest."
@@ -127,6 +143,7 @@ Example:
 {
   "id": "dev.example.native-mac-window-buttons",
   "name": "Native Mac Window Buttons",
+  "category": "UI",
   "version": "0.1.0",
   "author": "Example Author",
   "description": "Uses macOS-style traffic-light titlebar buttons.",
@@ -152,6 +169,7 @@ Example:
 {
   "id": "dev.example.mac-quit-cmd-q",
   "name": "Mac Quit CMD+Q",
+  "category": "UI",
   "version": "0.1.0",
   "author": "Example Author",
   "description": "Adds a quit shortcut for macOS.",
@@ -193,25 +211,26 @@ Example manifest:
 
 ```json
 {
-  "id": "dev.example.ui-control-center",
+  "id": "dev.example.tool-sketch-helper",
   "api_version": 1,
-  "name": "UI Control Center",
+  "category": "Tools",
+  "name": "Tool Sketch Helper",
   "version": "0.1.0",
   "author": "Example Author",
-  "description": "Example multi-command runtime addon.",
+  "description": "Example multi-command tools addon.",
   "entrypoint": "main.py",
   "commands": [
     {
-      "id": "show-demo-message",
-      "label": "Show Demo Message",
-      "description": "Shows a custom message.",
-      "menu_label": "Show Demo Message"
+      "id": "show-sketch-tips",
+      "label": "Sketch Tips",
+      "description": "Shows a sketch workflow reminder.",
+      "menu_label": "Sketch Tips"
     },
     {
-      "id": "toggle-native-buttons",
-      "label": "Toggle Mac Buttons",
-      "description": "Toggles native titlebar buttons.",
-      "menu_label": "Toggle Mac Buttons"
+      "id": "show-constraint-tips",
+      "label": "Constraint Tips",
+      "description": "Shows a constraint workflow reminder.",
+      "menu_label": "Constraint Tips"
     }
   ]
 }
@@ -239,11 +258,11 @@ response = {
     "state": state,
 }
 
-if command == "show-demo-message":
+if command == "show-sketch-tips":
     count = int(state.get("count", 0)) + 1
     state["count"] = count
-    response["title"] = "Addon Demo"
-    response["detail"] = f"The addon ran successfully {count} times."
+    response["title"] = "Sketch Tips"
+    response["detail"] = f"Sketch the base profile first, then constrain it before moving on. Shown {count} times."
     response["state"] = state
     response["actions"] = [
         {
@@ -252,15 +271,9 @@ if command == "show-demo-message":
             "detail": response["detail"]
         }
     ]
-elif command == "toggle-native-buttons":
-    enabled = not state.get("native_buttons", False)
-    state["native_buttons"] = enabled
-    state["window_controls"] = {
-        "use_native_controls": enabled,
-        "decoration_layout": "close,minimize,maximize:" if enabled else ""
-    }
-    response["title"] = "Window Controls"
-    response["detail"] = "Updated window controls from addon state."
+elif command == "show-constraint-tips":
+    response["title"] = "Constraint Tips"
+    response["detail"] = "Apply coincident, horizontal/vertical, and dimensions early to stabilize the sketch."
     response["state"] = state
     response["actions"] = [
         {
@@ -340,6 +353,7 @@ Example response:
 ## Recommended authoring rules
 
 - Keep manifests small and explicit.
+- Pick one of the current categories: `UI`, `Tools`, or `Models`.
 - Prefer declarative addons when possible.
 - Use script addons for behavior, not for arbitrary internal patching.
 - Do not rely on direct access to Dune 3D internal C++ objects.
@@ -378,6 +392,7 @@ This repo currently includes examples for:
 
 - `native-mac-window-buttons`
 - `mac-quit-cmd-q`
-- `ui-control-center`
+- `tool-sketch-helper`
+- `model-workflow-notes`
 
 These are useful references when creating new addons.
