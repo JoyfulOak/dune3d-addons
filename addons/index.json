@@ -7,6 +7,10 @@
     {
       "id": "dev.justin.native-mac-window-buttons",
       "folder": "native-mac-window-buttons"
+    },
+    {
+      "id": "dev.justin.mac-quit-cmd-q",
+      "folder": "mac-quit-cmd-q"
     }
   ]
 }
