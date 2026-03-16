@@ -1,0 +1,12 @@
+{
+  "addons": [
+    {
+      "id": "dev.justin.ui-control-center",
+      "folder": "ui-control-center"
+    },
+    {
+      "id": "dev.justin.native-mac-window-buttons",
+      "folder": "native-mac-window-buttons"
+    }
+  ]
+}

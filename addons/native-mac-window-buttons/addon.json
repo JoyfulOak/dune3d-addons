@@ -1,0 +1,11 @@
+{
+  "id": "dev.justin.native-mac-window-buttons",
+  "name": "Native Mac Window Buttons",
+  "version": "0.1.0",
+  "author": "Justin",
+  "description": "Uses macOS-style native titlebar controls on the left side in close, minimize, maximize order.",
+  "window_controls": {
+    "use_native_controls": true,
+    "decoration_layout": "close,minimize,maximize:"
+  }
+}
