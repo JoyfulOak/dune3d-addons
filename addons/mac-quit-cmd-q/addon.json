@@ -17,5 +17,6 @@
       "action": "app.quit",
       "accel": "<Super>q"
     }
-  ]
+  ],
+  "category": "UI"
 }

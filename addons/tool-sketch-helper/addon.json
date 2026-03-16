@@ -1,0 +1,24 @@
+{
+  "id": "dev.justin.tool-sketch-helper",
+  "category": "Tools",
+  "api_version": 1,
+  "name": "Tool Sketch Helper",
+  "version": "0.1.0",
+  "author": "Justin",
+  "description": "Example tools addon with sketch and constraint workflow tips.",
+  "entrypoint": "main.py",
+  "commands": [
+    {
+      "id": "show-sketch-tips",
+      "label": "Sketch Tips",
+      "description": "Shows a quick sketch-tool workflow reminder.",
+      "menu_label": "Sketch Tips"
+    },
+    {
+      "id": "show-constraint-tips",
+      "label": "Constraint Tips",
+      "description": "Shows a quick constraint workflow reminder.",
+      "menu_label": "Constraint Tips"
+    }
+  ]
+}
