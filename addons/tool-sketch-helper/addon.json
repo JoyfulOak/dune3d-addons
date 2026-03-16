@@ -1,0 +1,24 @@
+{
+  "id": "dev.justin.tool-sketch-helper",
+  "category": "Tools",
+  "api_version": 1,
+  "name": "Tool Sketch Helper",
+  "version": "0.2.0",
+  "author": "Justin",
+  "description": "Example tools addon with workflow tips and a live 3D axis guide command.",
+  "entrypoint": "main.py",
+  "commands": [
+    {
+      "id": "add-axis-guide",
+      "label": "Add Axis Guide",
+      "description": "Adds three 3D guide lines to the current group.",
+      "menu_label": "Add Axis Guide"
+    },
+    {
+      "id": "show-sketch-tips",
+      "label": "Sketch Tips",
+      "description": "Shows a quick sketch-tool workflow reminder.",
+      "menu_label": "Sketch Tips"
+    }
+  ]
+}

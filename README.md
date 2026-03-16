@@ -2,28 +2,38 @@
 
 Downloadable addons for Dune 3D.
 
-This repo is meant to be used as an addon catalog for the Dune 3D Addons manager. Addons live in this repo, Dune 3D syncs the repo into its managed cache, and users install addons from the Addons window inside the app.
+This repo is an addon catalog for the Dune 3D Addons manager. Addons live here, Dune 3D syncs the repo into its managed cache, and users install addons from the Addons window inside the app.
 
 ## How Dune 3D uses this repo
 
-Dune 3D expects this repo layout:
+Dune 3D expects this layout:
 
 - `addons/index.json`
 - `addons/<folder>/addon.json`
 - `addons/<folder>/...`
 
-The app reads `addons/index.json` as the preferred addon catalog. If `index.json` is missing, it falls back to scanning addon folders for `addon.json` files.
+The app reads `addons/index.json` as the preferred catalog. If `index.json` is missing, it falls back to scanning addon folders for `addon.json` files.
 
-The normal user flow is:
+Normal user flow:
 
-1. Open the `Addons` window in Dune 3D.
-2. The app syncs the addon repo automatically when the window opens.
-3. The app reads this repo's catalog.
-4. The user clicks `Install` on the addon they want.
+1. Open `Addons` in Dune 3D.
+2. The app syncs this repo into its managed local checkout.
+3. The app reads the addon catalog from `addons/index.json`.
+4. The user clicks `Install` for the addon they want.
 5. The addon is copied into Dune 3D's local addon data directory.
 6. The user enables the addon and tests it.
 
-Do not assume addon folders in this repo are automatically active in the app. They must still be installed from the Addons manager.
+Repo addons are not automatically active just because they exist here. They must still be installed from the Addons manager.
+
+## Current Addons manager behavior
+
+- the Addons window is filtered by `UI`, `Tools`, and `Models` tabs
+- repo addons show `Install` when they are not installed yet
+- installed addons show `Update` only when a newer repo version is available
+- installed addons with declared `commands` show one button per command
+- standalone script addons do not get a generic `Run` button in the installed-addon list
+
+That means script addons should expose useful named commands instead of relying on a fallback run control.
 
 ## Repo structure
 
@@ -36,14 +46,18 @@ addons/
     addon.json
   mac-quit-cmd-q/
     addon.json
-  ui-control-center/
+  tool-sketch-helper/
     addon.json
     main.py
+  model-demo-block/
+    addon.json
+    main.py
+    demo-block.step
 ```
 
 ## Catalog file
 
-`addons/index.json` is a simple catalog of addon ids and folder names.
+`addons/index.json` lists addon ids and folder names.
 
 Example:
 
@@ -59,8 +73,12 @@ Example:
       "folder": "mac-quit-cmd-q"
     },
     {
-      "id": "dev.justin.ui-control-center",
-      "folder": "ui-control-center"
+      "id": "dev.justin.tool-sketch-helper",
+      "folder": "tool-sketch-helper"
+    },
+    {
+      "id": "dev.justin.model-demo-block",
+      "folder": "model-demo-block"
     }
   ]
 }
@@ -68,10 +86,10 @@ Example:
 
 Recommendations:
 
-- Keep `id` stable forever once published.
-- Keep `folder` stable if users are already installing the addon.
-- Add new addons to the catalog rather than relying on folder scanning.
-- Use reverse-DNS style ids like `dev.yourname.my-addon`.
+- Keep `id` stable once published.
+- Keep `folder` stable once users install the addon.
+- Add new addons to the catalog instead of relying on folder scanning.
+- Use reverse-DNS ids such as `dev.yourname.my-addon`.
 
 ## Addon manifest
 
@@ -81,14 +99,21 @@ Common fields:
 
 - `id`: globally unique addon id
 - `name`: user-visible name
+- `category`: addon tab/category shown in the Addons manager
 - `version`: addon version string
 - `author`: addon author
 - `description`: short summary shown in the Addons window
 - `api_version`: addon API version, currently `1`
 - `entrypoint`: script file to run for script addons
 - `commands`: addon commands shown in the Addons window
-- `window_controls`: declarative window-titlebar behavior
+- `window_controls`: declarative titlebar behavior
 - `app_shortcuts`: declarative app accelerators like `Cmd+Q`
+
+Current supported categories:
+
+- `UI`
+- `Tools`
+- `Models`
 
 ### Minimal declarative addon
 
@@ -96,26 +121,26 @@ Common fields:
 {
   "id": "dev.example.sample-addon",
   "name": "Sample Addon",
+  "category": "UI",
   "version": "0.1.0",
   "author": "Example Author",
   "description": "A minimal addon manifest."
 }
 ```
 
-This kind of addon can exist in the catalog and be installed, but it does not do anything at runtime unless it declares a supported capability.
+This installs cleanly but does nothing at runtime unless it declares a supported capability.
 
 ## Supported addon types
 
 ### 1. Declarative window-controls addon
 
-Use this when you want to change the app's titlebar/button layout through supported app settings instead of direct GTK access.
-
-Example:
+Use this to change titlebar/button layout through supported app settings instead of direct GTK access.
 
 ```json
 {
   "id": "dev.example.native-mac-window-buttons",
   "name": "Native Mac Window Buttons",
+  "category": "UI",
   "version": "0.1.0",
   "author": "Example Author",
   "description": "Uses macOS-style traffic-light titlebar buttons.",
@@ -126,21 +151,15 @@ Example:
 }
 ```
 
-Fields:
-
-- `use_native_controls`: ask the app to prefer native titlebar controls
-- `decoration_layout`: GTK decoration layout string
-
 ### 2. Declarative app-shortcut addon
 
-Use this when you want an addon to register app shortcuts for built-in actions.
-
-Example:
+Use this to register app shortcuts for built-in actions.
 
 ```json
 {
   "id": "dev.example.mac-quit-cmd-q",
   "name": "Mac Quit CMD+Q",
+  "category": "UI",
   "version": "0.1.0",
   "author": "Example Author",
   "description": "Adds a quit shortcut for macOS.",
@@ -161,46 +180,41 @@ Example:
 }
 ```
 
-Fields:
-
-- `action`: the app action name, for example `app.quit`
-- `accel`: GTK accelerator string
-
 Notes:
 
-- Dune 3D also expands common macOS modifier variants when it registers accelerators.
+- Dune 3D expands common macOS modifier variants when registering accelerators.
 - Multiple entries can target the same action.
-- Use fallback variants when platform key mapping is inconsistent.
 
 ### 3. Script addon
 
-Use this when the addon needs logic at runtime.
+Use this when the addon needs runtime logic.
 
-Script addons declare an `entrypoint` and optionally `commands`.
+Script addons declare an `entrypoint` and usually one or more `commands`.
 
 Example manifest:
 
 ```json
 {
-  "id": "dev.example.ui-control-center",
+  "id": "dev.example.tool-sketch-helper",
   "api_version": 1,
-  "name": "UI Control Center",
-  "version": "0.1.0",
+  "category": "Tools",
+  "name": "Tool Sketch Helper",
+  "version": "0.2.0",
   "author": "Example Author",
-  "description": "Example multi-command runtime addon.",
+  "description": "Example tools addon with live document actions.",
   "entrypoint": "main.py",
   "commands": [
     {
-      "id": "show-demo-message",
-      "label": "Show Demo Message",
-      "description": "Shows a custom message.",
-      "menu_label": "Show Demo Message"
+      "id": "add-axis-guide",
+      "label": "Add Axis Guide",
+      "description": "Adds three 3D guide lines to the current group.",
+      "menu_label": "Add Axis Guide"
     },
     {
-      "id": "toggle-native-buttons",
-      "label": "Toggle Mac Buttons",
-      "description": "Toggles native titlebar buttons.",
-      "menu_label": "Toggle Mac Buttons"
+      "id": "show-sketch-tips",
+      "label": "Sketch Tips",
+      "description": "Shows a sketch workflow reminder.",
+      "menu_label": "Sketch Tips"
     }
   ]
 }
@@ -214,57 +228,35 @@ import json
 import os
 
 command = os.environ.get("DUNE3D_ADDON_COMMAND", "")
-state_json = os.environ.get("DUNE3D_ADDON_STATE_JSON", "")
-
-try:
-    state = json.loads(state_json) if state_json else {}
-except json.JSONDecodeError:
-    state = {}
-
 response = {
-    "title": "Example Addon",
-    "detail": "No command was provided.",
-    "actions": [],
-    "state": state,
+    "title": "Tool Sketch Helper",
+    "detail": "Pick a command.",
+    "actions": []
 }
 
-if command == "show-demo-message":
-    count = int(state.get("count", 0)) + 1
-    state["count"] = count
-    response["title"] = "Addon Demo"
-    response["detail"] = f"The addon ran successfully {count} times."
-    response["state"] = state
+if command == "add-axis-guide":
+    response["title"] = "Axis Guide Added"
+    response["detail"] = "Added X, Y, and Z guide lines to the current group."
     response["actions"] = [
-        {
-            "type": "show_message",
-            "title": response["title"],
-            "detail": response["detail"]
-        }
+        {"type": "add_line3d", "label": "addon axis x", "point1": [0, 0, 0], "point2": [40, 0, 0]},
+        {"type": "add_line3d", "label": "addon axis y", "point1": [0, 0, 0], "point2": [0, 40, 0]},
+        {"type": "add_line3d", "label": "addon axis z", "point1": [0, 0, 0], "point2": [0, 0, 40]}
     ]
-elif command == "toggle-native-buttons":
-    enabled = not state.get("native_buttons", False)
-    state["native_buttons"] = enabled
-    state["window_controls"] = {
-        "use_native_controls": enabled,
-        "decoration_layout": "close,minimize,maximize:" if enabled else ""
-    }
-    response["title"] = "Window Controls"
-    response["detail"] = "Updated window controls from addon state."
-    response["state"] = state
-    response["actions"] = [
-        {
-            "type": "show_message",
-            "title": response["title"],
-            "detail": response["detail"]
-        }
-    ]
+elif command == "show-sketch-tips":
+    response["title"] = "Sketch Tips"
+    response["detail"] = "Start with a workplane, lock down the base profile, then switch to solid-model groups once the sketch is constrained."
+    response["actions"] = [{
+        "type": "show_message",
+        "title": response["title"],
+        "detail": response["detail"]
+    }]
 
 print(json.dumps(response))
 ```
 
 ## Script addon environment
 
-When Dune 3D runs a script addon, it provides these environment variables:
+When Dune 3D runs a script addon, it provides:
 
 - `DUNE3D_ADDON_ID`
 - `DUNE3D_ADDON_NAME`
@@ -277,7 +269,7 @@ When Dune 3D runs a script addon, it provides these environment variables:
 
 ## Structured script output
 
-Script addons can print JSON to stdout. Dune 3D reads that JSON and can use it to update addon state and trigger supported app actions.
+Script addons can print JSON to stdout. Dune 3D reads that JSON and can update addon state and trigger supported app actions.
 
 Supported response fields:
 
@@ -286,29 +278,49 @@ Supported response fields:
 - `state`
 - `actions`
 
-Supported action types currently include:
+Supported action types:
 
 - `show_message`
 - `open_window`
+- `add_line3d`
+- `insert_step_model`
+
+### `add_line3d`
+
+Fields:
+
+- `point1`
+- `point2`
+- `label`
+
+This creates one 3D line entity in the active document group.
+
+### `insert_step_model`
+
+Fields:
+
+- `path`
+- `copy_to_project`
+- `lock_rotation`
+
+Behavior:
+
+- relative `path` values are resolved from the addon folder
+- if `copy_to_project` is `true` and the document already has a saved path, Dune 3D copies the STEP file into a project addon-assets folder before inserting it
+- if `lock_rotation` is `true`, the inserted STEP entity gets a lock-rotation constraint
 
 Example response:
 
 ```json
 {
-  "title": "Addon Demo",
-  "detail": "Everything worked.",
-  "state": {
-    "count": 3
-  },
+  "title": "Demo Block Inserted",
+  "detail": "Inserted the packaged STEP block into the current document.",
   "actions": [
     {
-      "type": "show_message",
-      "title": "Addon Demo",
-      "detail": "Everything worked."
-    },
-    {
-      "type": "open_window",
-      "window": "addons"
+      "type": "insert_step_model",
+      "path": "demo-block.step",
+      "copy_to_project": true,
+      "lock_rotation": true
     }
   ]
 }
@@ -316,57 +328,28 @@ Example response:
 
 ## How to create a new addon
 
-1. Pick a stable addon id.
-2. Create a new folder in `addons/`.
-3. Create `addon.json` in that folder.
-4. Add the addon to `addons/index.json`.
-5. If it is a script addon, add the script file such as `main.py`.
-6. Keep the addon focused on supported extension points.
-7. Open Dune 3D, open `Addons`, let it sync, and install your addon from the UI.
-8. Enable the addon and test it.
-9. Bump the `version` when you ship changes.
+1. Pick one of the current categories: `UI`, `Tools`, or `Models`.
+2. Create a folder under `addons/`.
+3. Add an `addon.json` manifest.
+4. If the addon is scripted, add `main.py` or another entrypoint file.
+5. If the addon ships assets, place them in the same addon folder.
+6. Add the addon to `addons/index.json`.
+7. Open Dune 3D, open `Addons`, let it sync, and install the addon from the UI.
+8. Enable the addon and test its commands.
+9. Bump the addon `version` whenever you publish a new repo update.
 
-## Recommended authoring rules
+## Authoring tips
 
-- Keep manifests small and explicit.
-- Prefer declarative addons when possible.
-- Use script addons for behavior, not for arbitrary internal patching.
-- Do not rely on direct access to Dune 3D internal C++ objects.
-- Treat the addon API as a stable extension surface, not a private-engine hook.
-- Keep command ids stable after release.
-- Use clear names and descriptions because they appear in the Addons window.
-- Add fallback accelerators for shortcuts on macOS.
-
-## Versioning
-
-Recommendations:
-
-- Start with `0.1.0` for a first test addon.
-- Bump patch version for small fixes.
-- Bump minor version when adding new commands or capabilities.
-- Keep the same `id` across versions of the same addon.
-
-Dune 3D compares installed versions against repo versions to decide whether an update is available.
-
-## Testing workflow
-
-Recommended workflow:
-
-1. Edit files in this repo.
-2. Open Dune 3D.
-3. Open the `Addons` window.
-4. Let the repo auto-sync.
-5. Click `Install` for a new addon, or `Update` for an existing one.
-6. Enable it.
-7. Test the behavior.
-8. If needed, update the version and repeat.
+- Prefer named commands over one generic script entrypoint.
+- Keep addon ids and folder names stable.
+- Use declarative fields when the feature already exists, such as `window_controls` or `app_shortcuts`.
+- Use script actions when you need runtime behavior.
+- Keep script output small and deterministic.
+- Treat the addon API as a supported surface, not as direct access to internal dune3d C++ objects.
 
 ## Current example addons
 
-This repo currently includes examples for:
-
 - `native-mac-window-buttons`
 - `mac-quit-cmd-q`
-- `ui-control-center`
-
-These are useful references when creating new addons.
+- `tool-sketch-helper`
+- `model-demo-block`

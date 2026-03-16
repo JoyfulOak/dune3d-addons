@@ -7,5 +7,6 @@
   "window_controls": {
     "use_native_controls": true,
     "decoration_layout": "close,minimize,maximize:"
-  }
+  },
+  "category": "UI"
 }
