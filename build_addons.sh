@@ -37,5 +37,6 @@ build_addon() {
 build_addon "constraint-context-delete"
 build_addon "mac-quit-cmd-q"
 build_addon "native-mac-window-buttons"
+build_addon "sketch-tree"
 
 echo "Built add-ons into $repo_root/addons"

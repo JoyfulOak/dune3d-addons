@@ -1,0 +1,10 @@
+{
+  "id": "dev.justin.sketch-tree",
+  "name": "Sketch Tree",
+  "version": "0.1.0",
+  "dune_version": "1.4.0",
+  "author": "Justin",
+  "description": "Docked sketch inspector with expandable geometry rows and inline dimension editing.",
+  "entry": "sketch_tree.dylib",
+  "enabled": true
+}

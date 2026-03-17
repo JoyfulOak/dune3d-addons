@@ -11,6 +11,10 @@
     {
       "id": "dev.justin.constraint-context-delete",
       "folder": "constraint-context-delete"
+    },
+    {
+      "id": "dev.justin.sketch-tree",
+      "folder": "sketch-tree"
     }
   ]
 }
