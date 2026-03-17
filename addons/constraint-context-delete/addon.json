@@ -1,7 +1,7 @@
 {
   "id": "dev.justin.constraint-context-delete",
   "name": "Constraint Context Delete",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "dune_version": "1.4.0",
   "author": "Justin",
   "description": "Shows the current status of constraint-context delete support in the private add-on runtime.",
