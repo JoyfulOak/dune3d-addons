@@ -11,6 +11,7 @@ common_flags=(
   -dynamiclib
   -undefined
   dynamic_lookup
+  -fno-autolink
   -DGLM_ENABLE_EXPERIMENTAL
   -I/opt/homebrew/include
   -I"$dune3d_root/src"
@@ -30,8 +31,7 @@ build_addon() {
     "${common_flags[@]}" \
     "$src" \
     -o "$repo_root/addons/$folder/$output" \
-    $(pkg-config --cflags gtkmm-4.0 epoxy eigen3 glm harfbuzz freetype2 libpng) \
-    $(pkg-config --libs gtkmm-4.0)
+    $(pkg-config --cflags gtkmm-4.0 epoxy eigen3 glm harfbuzz freetype2 libpng)
 }
 
 build_addon "constraint-context-delete"
