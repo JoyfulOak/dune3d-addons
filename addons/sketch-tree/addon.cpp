@@ -341,14 +341,37 @@ private:
     std::vector<const Entity *> collect_entities(const Document &doc, const UUID &group_uuid) const
     {
         std::vector<const Entity *> entities;
+        std::set<UUID> seen;
+
+        auto append_entity = [&](const Entity *entity) {
+            if (!entity)
+                return;
+            if (!entity->of_type(Entity::Type::LINE_2D, Entity::Type::CIRCLE_2D, Entity::Type::ARC_2D,
+                                 Entity::Type::POINT_2D, Entity::Type::BEZIER_2D))
+                return;
+            if (!seen.insert(entity->m_uuid).second)
+                return;
+            entities.push_back(entity);
+        };
+
+        const auto &group = doc.get_group(group_uuid);
+        for (const auto &entity_uuid : group.get_referenced_entities(doc)) {
+            if (!doc.m_entities.contains(entity_uuid))
+                continue;
+            const auto *entity = doc.get_entity_ptr(entity_uuid);
+            if (!entity)
+                continue;
+            if (entity->m_group != group_uuid)
+                continue;
+            append_entity(entity);
+        }
+
         for (const auto &[uu, entity] : doc.m_entities) {
             if (entity->m_group != group_uuid)
                 continue;
-            if (!entity->of_type(Entity::Type::LINE_2D, Entity::Type::CIRCLE_2D, Entity::Type::ARC_2D,
-                                 Entity::Type::POINT_2D, Entity::Type::BEZIER_2D))
-                continue;
-            entities.push_back(entity.get());
+            append_entity(entity.get());
         }
+
         std::ranges::sort(entities, [](const Entity *a, const Entity *b) {
             if (a->get_type() != b->get_type())
                 return a->get_type() < b->get_type();
@@ -378,14 +401,8 @@ private:
         std::vector<SketchRowInfo> dimensions;
         std::vector<SketchRowInfo> constraints;
 
-        for (const auto &[uu, constraint_ptr] : doc.m_constraints) {
-            const auto &constraint = *constraint_ptr;
-            if (constraint.m_group != entity.m_group)
-                continue;
-            if (!references_entity(constraint, entity.m_uuid))
-                continue;
-
-            auto row = make_row_info(doc, constraint, entity.m_uuid, entity_names);
+        for (const auto *constraint : entity.get_constraints(doc)) {
+            auto row = make_row_info(doc, *constraint, entity.m_uuid, entity_names);
             if (!row)
                 continue;
             if (row->editable)
@@ -427,7 +444,7 @@ private:
                 if (m_reloading || toggle->get_active())
                     return;
                 std::string error;
-                const bool ok = m_ctx.core && m_ctx.core->apply_document_edit(
+                const bool ok = m_ctx.edits && m_ctx.edits->apply_document_edit(
                                                      "sketch tree remove constraint",
                                                      [row](Document &doc, std::string &) {
                                                          doc.m_constraints.erase(row.constraint_uuid);
@@ -470,11 +487,11 @@ private:
         }
 
         auto commit = [this, row, spin] {
-            if (m_reloading || !m_ctx.core)
+            if (m_reloading || !m_ctx.edits)
                 return;
             std::string error;
             const double value = spin->get_value();
-            const bool ok = m_ctx.core->apply_document_edit(
+            const bool ok = m_ctx.edits->apply_document_edit(
                     "sketch tree edit " + row.label,
                     [row, value](Document &doc, std::string &local_error) {
                         auto *constraint = doc.get_constraint_ptr(row.constraint_uuid);
