@@ -2,7 +2,7 @@
 
 Private shared-library add-ons for Dune 3D.
 
-This repo now targets the in-process private add-on runtime used by the current Dune 3D build. It no longer describes the old script/declarative addon manager model.
+This repo targets the in-process private add-on runtime used by the current Dune 3D build.
 
 ## Runtime model
 
@@ -32,82 +32,33 @@ addons/
   native-mac-window-buttons/
     addon.json
     addon.cpp
+    native_mac_window_buttons.dylib
   mac-quit-cmd-q/
     addon.json
     addon.cpp
+    mac_quit_cmd_q.dylib
   constraint-context-delete/
     addon.json
     addon.cpp
+    constraint_context_delete.dylib
+build_addons.sh
 ```
 
-`addons/index.json` is just a lightweight catalog of ids and folders.
+## Building the repo add-ons
 
-## Manifest format
-
-Example:
-
-```json
-{
-  "id": "hello-tools",
-  "name": "Hello Tools",
-  "version": "1.0.0",
-  "dune_version": "1.4.0",
-  "entry": "hello_tools.dylib",
-  "enabled": true
-}
-```
-
-Expected fields:
-
-- `id`
-- `name`
-- `version`
-- `dune_version`
-- `entry`
-- `enabled`
-
-The old fields are obsolete and should not be used for new add-ons:
-
-- `entrypoint`
-- `app_shortcuts`
-- `window_controls`
-- `commands`
-- `api_version`
-- `category`
-
-## Current converted add-ons
-
-### `dev.justin.native-mac-window-buttons`
-
-Registers macOS-style titlebar controls through the app-owned add-on UI hook.
-
-### `dev.justin.mac-quit-cmd-q`
-
-Registers `app.quit` accelerators through the app-owned add-on shortcut hook.
-
-### `dev.justin.constraint-context-delete`
-
-Now loads as a shared-library add-on and exposes a status command. It does not yet inject constraint-list context-menu actions.
-
-## Building an add-on
-
-Add-ons compile against Dune 3D internal headers. A minimal macOS example:
+These add-ons compile against the local Dune 3D source tree.
 
 ```sh
-/opt/homebrew/opt/llvm/bin/clang++ \
-  -std=c++20 \
-  -dynamiclib \
-  -I/Users/justin/dune3d/src \
-  -I/Users/justin/dune3d/3rd_party \
-  addon.cpp \
-  -o hello_tools.dylib \
-  $(pkg-config --cflags --libs gtkmm-4.0)
+cd /Users/justin/Documents/GitHub/dune3d-addons
+export DUNE3D_ROOT="/Users/justin/dune3d"
+export CXX="/opt/homebrew/opt/llvm/bin/clang++"
+bash build_addons.sh
 ```
 
-Then copy the built library next to `addon.json` in `~/.config/dune3d/addons/<folder>/`.
+That command writes the `.dylib` files directly into each `addons/<folder>/` directory next to `addon.json`, which makes the repo installable by Dune 3D's Addons window.
 
 ## Notes
 
 - Exact Dune version matching is expected.
-- Add-ons may be rebuilt whenever Dune 3D changes.
-- These add-ons are private and trusted, not sandboxed public plugins.
+- Rebuild the add-ons whenever Dune 3D headers or behavior change.
+- This repo is a private trusted add-on catalog, not a public plugin marketplace.
