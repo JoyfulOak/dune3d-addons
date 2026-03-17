@@ -1,18 +1,10 @@
 {
   "id": "dev.justin.constraint-context-delete",
-  "category": "Tools",
-  "api_version": 1,
   "name": "Constraint Context Delete",
   "version": "0.1.0",
+  "dune_version": "1.4.0",
   "author": "Justin",
-  "description": "Prototype addon for deleting constraints from a context menu when the public addon API adds the required hooks.",
-  "entrypoint": "main.py",
-  "commands": [
-    {
-      "id": "show-api-status",
-      "label": "Constraint Delete Status",
-      "description": "Explains the current addon API limitation for constraint context-menu delete actions.",
-      "menu_label": "Constraint Delete Status"
-    }
-  ]
+  "description": "Shows the current status of constraint-context delete support in the private add-on runtime.",
+  "entry": "constraint_context_delete.dylib",
+  "enabled": true
 }

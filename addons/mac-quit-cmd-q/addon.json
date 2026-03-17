@@ -2,21 +2,9 @@
   "id": "dev.justin.mac-quit-cmd-q",
   "name": "Mac Quit CMD+Q",
   "version": "0.1.0",
+  "dune_version": "1.4.0",
   "author": "Justin",
   "description": "Adds the native macOS quit shortcut.",
-  "app_shortcuts": [
-    {
-      "action": "app.quit",
-      "accel": "<Meta>q"
-    },
-    {
-      "action": "app.quit",
-      "accel": "<Primary>q"
-    },
-    {
-      "action": "app.quit",
-      "accel": "<Super>q"
-    }
-  ],
-  "category": "UI"
+  "entry": "mac_quit_cmd_q.dylib",
+  "enabled": true
 }
